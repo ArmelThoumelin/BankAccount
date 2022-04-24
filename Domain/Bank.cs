@@ -1,4 +1,5 @@
 ﻿using Domain.Models;
+using System.Threading.Tasks;
 
 namespace Domain
 {
@@ -15,9 +16,9 @@ namespace Domain
             this._bankRepository = bankRepository;
         }
 
-        public TransactionResult AddDeposit(DepositDemand depositDemand)
+        public async Task<TransactionResult> AddDeposit(DepositDemand depositDemand)
         {
-            return _bankRepository.AddTransaction(depositDemand);
+            return await _bankRepository.AddTransaction(depositDemand);
         }
     }
 }

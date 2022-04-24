@@ -1,10 +1,11 @@
 ﻿using Domain.Models;
+using System.Threading.Tasks;
 
 namespace Domain
 {
     public interface IBankRepository
     {
-        TransactionResult AddTransaction(TransactionDemand transactionDemand);
+        Task<TransactionResult> AddTransaction(TransactionDemand transactionDemand);
     }
 
 }
