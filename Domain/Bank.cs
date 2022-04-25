@@ -18,7 +18,16 @@ namespace Domain
 
         public async Task<TransactionResult> AddDeposit(DepositDemand depositDemand)
         {
-            return await _bankRepository.AddTransaction(depositDemand);
+            TransactionResult result;
+            if (!depositDemand.CheckAmount())
+            {
+                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Unauthorized, Message = "The amount can't be negative nor equal to zero" }; //TODO:Manage message
+            }
+            else
+            {
+                result = await _bankRepository.AddTransaction(depositDemand);
+            }
+            return result;
         }
     }
 }
