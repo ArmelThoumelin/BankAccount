@@ -17,6 +17,7 @@ namespace Domain
             this._bankRepository = bankRepository;
         }
 
+        #region Deposit
         public async Task<TransactionResult> AddDeposit(DepositDemand depositDemand)
         {
             TransactionResult result;
@@ -50,5 +51,14 @@ namespace Domain
 
             return result;
         }
+        #endregion
+
+
+        #region Withdrawal
+        public async Task<TransactionResult> AddWithdrawal(WithdrawalDemand withdrawalDemand)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
     }
 }

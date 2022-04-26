@@ -6,6 +6,7 @@ namespace Domain
     public interface IBank
     {
         Task<TransactionResult> AddDeposit(DepositDemand depositDemand);
+        Task<TransactionResult> AddWithdrawal(WithdrawalDemand withdrawalDemand);
     }
 
 }
