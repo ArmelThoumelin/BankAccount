@@ -1,4 +1,5 @@
 ﻿using Domain.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace Domain
@@ -19,14 +20,34 @@ namespace Domain
         public async Task<TransactionResult> AddDeposit(DepositDemand depositDemand)
         {
             TransactionResult result;
-            if (!depositDemand.CheckAmount())
+            try
             {
-                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Unauthorized, Message = "The amount can't be negative nor equal to zero" }; //TODO:Manage message
+                if (!depositDemand.CheckAmount())
+                {
+                    throw new BankException.InvalidAmountException();
+                }
+                else
+                {
+                    result = await _bankRepository.AddTransaction(depositDemand);
+                }
             }
-            else
+            catch (BankException.InvalidAccountException)
             {
-                result = await _bankRepository.AddTransaction(depositDemand);
+                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Invalid, Message = BankMessages.UnknownAccount };
             }
+            catch (BankException.InvalidAmountException)
+            {
+                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Unauthorized, Message = BankMessages.AmountForbidNegativeAndZero };
+            }
+            catch (BankException.TransactionErrorException)
+            {
+                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Invalid, Message = BankMessages.TransactionInfrastructureError };
+            }
+            catch (Exception)
+            {
+                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Invalid, Message = BankMessages.TransactionException };
+            }
+
             return result;
         }
     }

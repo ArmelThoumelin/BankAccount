@@ -1,36 +1,42 @@
 ﻿using Domain;
 using Domain.Models;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace Infrastructure.InMemoryDB
 {
     public class IMBankRepository : IBankRepository
     {
+        protected IMDBContext context { get => ContextInstance.GetInstance(); }
+
         public async Task<TransactionResult> AddTransaction(TransactionDemand transactionDemand)
         {
-            try
+            await CheckAccount(transactionDemand.IdAccount);
+            context.Set<DBModels.Transaction>().Add(new DBModels.Transaction() { IdAccount = transactionDemand.IdAccount, Amount = transactionDemand.Amount, TransactionDate = transactionDemand.TransactionDate });
+            var result = new TransactionResult();
+            if (await context.SaveChangesAsync() == 1)
             {
-                var context = ContextInstance.GetInstance();
-                context.Set<DBModels.Transaction>().Add(new DBModels.Transaction() { IdAccount = transactionDemand.IdAccount, Amount = transactionDemand.Amount, TransactionDate = transactionDemand.TransactionDate });
-                var result = new TransactionResult();
-                if (await context.SaveChangesAsync() == 1)
-                {
-                    result.Result = TransactionResult.TransactionStatus.Ok;
-                }
-                else
-                {
-                    result.Result = TransactionResult.TransactionStatus.Invalid;
-                    result.Message = "Transaction haven't been performed, we are sorry for the inconvenience"; // TODO:Manage message
-                }
-
-                return result;
+                result.Result = TransactionResult.TransactionStatus.Ok;
             }
-            catch (System.Exception)
+            else
             {
-                return new TransactionResult() { Result = TransactionResult.TransactionStatus.Invalid, Message = "We encountered an unexpected error, we are sorry for the inconvenience" }; // TODO:Manage message
-                // TODO:Manage Exception
+                throw new Domain.BankException.TransactionErrorException();
             }
 
+            return result;
+        }
+
+        private async Task CheckAccount(long IdAccount)
+        {
+            if (! await AccountExists(IdAccount))
+            {
+                throw new Domain.BankException.InvalidAccountException();
+            }
+        }
+
+        private async Task<bool> AccountExists(long IdAccount)
+        {
+            return await context.Set<DBModels.Account>().AnyAsync();
         }
     }
 }
