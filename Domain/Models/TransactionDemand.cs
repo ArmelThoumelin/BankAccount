@@ -2,17 +2,11 @@
 
 namespace Domain.Models
 {
-    public class TransactionDemand
+    public abstract class TransactionDemand<T> where T : IAmount
     {
         public long IdAccount { get; set; }
-        public decimal Amount { get; protected set; }
+        public abstract T Amount { get; set; }
         public DateTime TransactionDate { get; set; }
-
-        public bool CheckAmount()
-        {
-            //TODO:Think about valueObject
-            return Amount > decimal.Zero;
-        }
 
     }
 }

@@ -5,6 +5,7 @@ using Xunit;
 
 namespace Application.Test
 {
+    [Collection("TestCollection1")]
     public class WithdrawalTest : BankTest
     {
         [Fact]
@@ -12,21 +13,18 @@ namespace Application.Test
         {
             var bank = this.GetBank();
 
-            var demand = new WithdrawalDemand() { IdAccount = 1, WithdrawalAmount = 100, TransactionDate = System.DateTime.Now };
+            var demand = new WithdrawalDemand() { IdAccount = 1, Amount = new WithdrawalAmount(100), TransactionDate = System.DateTime.Now };
             var result = await bank.AddWithdrawal(demand);
 
             Assert.True(result.Result == TransactionResult.TransactionStatus.Ok);
         }
 
         [Fact]
-        public async Task DepositKOWrongAmount()
+        public void WithDrawalKOWrongAmount()
         {
-            var bank = this.GetBank();
-
-            var demand = new WithdrawalDemand() { IdAccount = 1, WithdrawalAmount = -100, TransactionDate = System.DateTime.Now };
-            var result = await bank.AddWithdrawal(demand);
-
-            Assert.True(result.Result == TransactionResult.TransactionStatus.Unauthorized);
+            Assert.Throws<Domain.BankException.InvalidAmountException>(
+                () => new WithdrawalDemand() { IdAccount = 1, Amount = new WithdrawalAmount(-100), TransactionDate = System.DateTime.Now }
+            );
         }
 
         [Fact]
@@ -34,10 +32,10 @@ namespace Application.Test
         {
             var bank = this.GetBank();
 
-            var demand = new WithdrawalDemand() { IdAccount = long.MaxValue, WithdrawalAmount = 100, TransactionDate = System.DateTime.Now };
+            var demand = new WithdrawalDemand() { IdAccount = long.MaxValue, Amount = new WithdrawalAmount(100), TransactionDate = System.DateTime.Now };
             var result = await bank.AddWithdrawal(demand);
 
-            Assert.True(result.Result == TransactionResult.TransactionStatus.Invalid);
+            Assert.True(result.Result == TransactionResult.TransactionStatus.UnknownAccount);
         }
 
         [Fact]
@@ -45,10 +43,10 @@ namespace Application.Test
         {
             var bank = this.GetBank();
 
-            var demand = new WithdrawalDemand() { IdAccount = 1, WithdrawalAmount = decimal.MaxValue, TransactionDate = System.DateTime.Now };
+            var demand = new WithdrawalDemand() { IdAccount = 1, Amount = new WithdrawalAmount(decimal.MaxValue), TransactionDate = System.DateTime.Now };
             var result = await bank.AddWithdrawal(demand);
 
-            Assert.True(result.Result == TransactionResult.TransactionStatus.Invalid);
+            Assert.True(result.Result == TransactionResult.TransactionStatus.InsufficientFunds);
         }
     }
 }

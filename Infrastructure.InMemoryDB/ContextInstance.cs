@@ -41,8 +41,8 @@ namespace Infrastructure.InMemoryDB
 
         private static void Fill()
         {
-            iMDBContext.Add<Account>(new Account() { Id = 1, Overdraft = 0, Owner = "Mr Dupont" });
-            iMDBContext.Add<Transaction>(new Transaction() { Id = 1, IdAccount = 1, Amount = 20, TransactionDate = System.DateTime.Now });
+            iMDBContext.Add<Account>(new Account() { Id = 1, Owner = "Mr Dupont" });
+            iMDBContext.Add<Transaction>(new Transaction() { Id = 1, IdAccount = 1, Amount = 2000, TransactionDate = System.DateTime.Now });
             iMDBContext.SaveChanges();
         }
     }

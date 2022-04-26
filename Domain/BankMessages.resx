@@ -120,6 +120,9 @@
   <data name="AmountForbidNegativeAndZero" xml:space="preserve">
     <value>The amount can't be negative nor equal to zero</value>
   </data>
+  <data name="InsufficientFunds" xml:space="preserve">
+    <value>Sorry, you do not have sufficient funds to complete this transaction.</value>
+  </data>
   <data name="TransactionException" xml:space="preserve">
     <value>We encountered an unexpected error, we are sorry for the inconvenience</value>
   </data>

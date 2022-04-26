@@ -70,6 +70,15 @@ namespace Domain {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Sorry, you do not have sufficient funds to complete this transaction..
+        /// </summary>
+        public static string InsufficientFunds {
+            get {
+                return ResourceManager.GetString("InsufficientFunds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à We encountered an unexpected error, we are sorry for the inconvenience.
         /// </summary>
         public static string TransactionException {

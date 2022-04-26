@@ -6,7 +6,9 @@
         {
             Ok,
             Invalid,
-            Unauthorized
+            Unauthorized,
+            UnknownAccount,
+            InsufficientFunds
         }
 
         public TransactionStatus Result { get; set; }

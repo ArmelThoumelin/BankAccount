@@ -6,7 +6,6 @@ namespace Infrastructure.InMemoryDB.DBModels
     {
         public long Id { get; set; }
         public string Owner { get; set; }
-        public decimal Overdraft { get; set; }
         public List<Transaction> Transactions { get; set; }
     }
 }

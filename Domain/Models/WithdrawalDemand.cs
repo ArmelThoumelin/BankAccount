@@ -1,7 +1,7 @@
 ﻿namespace Domain.Models
 {
-    public class WithdrawalDemand : TransactionDemand
+    public class WithdrawalDemand : TransactionDemand<WithdrawalAmount>
     {
-        public decimal WithdrawalAmount { get => this.Amount; set => this.Amount = value * -1; }
+        public override WithdrawalAmount Amount { get; set; }
     }
 }
