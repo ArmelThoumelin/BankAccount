@@ -10,7 +10,6 @@ namespace Domain.Models
             Invalid,
             InvalidDateRange,
             UnknownAccount
-
         }
 
         public HistoryStatus Result { get; set; }

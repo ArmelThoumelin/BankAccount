@@ -16,10 +16,10 @@ namespace Application.Test
         public async Task BalanceEqualTransactionsSumOK()
         {
             // Arrange
-            var demand = new HistoryDemand() { IdAccount = 1, StartDate = DateTime.MinValue, EndDate = DateTime.MaxValue };
+            var demand = new HistoryDemand() { IdAccount = _AccountOk, StartDate = DateTime.MinValue, EndDate = DateTime.MaxValue };
 
             // Act
-            decimal balance = await bank.GetBalance(1);
+            decimal balance = await bank.GetBalance(_AccountOk);
             var Transactions = await bank.GetTransactions(demand);
             decimal TransactionsSum = Transactions.Transactions.Sum(t => t.Amount.Value);
 
@@ -36,7 +36,7 @@ namespace Application.Test
             int firstTransactionsIndex = 0;
             int lastTransactionsIndex = 1;
 
-            var demand = new HistoryDemand() { IdAccount = 1, StartDate = dates[firstTransactionsIndex], EndDate = dates[lastTransactionsIndex] };
+            var demand = new HistoryDemand() { IdAccount = _AccountOk, StartDate = dates[firstTransactionsIndex], EndDate = dates[lastTransactionsIndex] };
             var expectedSum = amounts[firstTransactionsIndex] + amounts[lastTransactionsIndex];
 
             // Act
@@ -58,14 +58,13 @@ namespace Application.Test
         {
             var demand = new DepositDemand() { IdAccount = IdAccount, Amount = new DepositAmount(Amount), TransactionDate = TransactionDate };
             await bank.AddDeposit(demand);
-
         }
 
         [Fact]
         public async Task StartDateAfterEndDateKO()
         {
             // Arrange
-            var demand = new HistoryDemand() { IdAccount = 1, StartDate = DateTime.MaxValue, EndDate = DateTime.MinValue };
+            var demand = new HistoryDemand() { IdAccount = _AccountOk, StartDate = DateTime.MaxValue, EndDate = DateTime.MinValue };
 
             // Act 
             var result = await bank.GetTransactions(demand);
@@ -78,7 +77,7 @@ namespace Application.Test
         public async Task HistoryKOWrongAccount()
         {
             // Arrange
-            var demand = new HistoryDemand() { IdAccount = long.MaxValue, StartDate = DateTime.Now, EndDate = DateTime.Now };
+            var demand = new HistoryDemand() { IdAccount = _AccountKo, StartDate = DateTime.Now, EndDate = DateTime.Now };
 
             // Act 
             var result = await bank.GetTransactions(demand);
