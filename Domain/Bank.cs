@@ -1,5 +1,6 @@
 ﻿using Domain.Models;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Domain
@@ -80,6 +81,19 @@ namespace Domain
                 throw new BankException.InsufficientFundsException();
             }
         }
+        #endregion
+
+        #region History
+        public async Task<decimal> GetBalance(long idAccount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<List<Transaction>> GetTransactions(HistoryDemand historyDemand)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }
