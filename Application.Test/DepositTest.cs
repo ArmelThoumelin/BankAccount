@@ -19,7 +19,7 @@ namespace Application.Test
         }
 
         [Fact]
-        public async Task DepositKOWrongAmount()
+        public void DepositKOWrongAmount()
         {
             Assert.Throws<Domain.BankException.InvalidAmountException>(
                 () => new DepositDemand() { IdAccount = 1, Amount = new DepositAmount(-100), TransactionDate = System.DateTime.Now }

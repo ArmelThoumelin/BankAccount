@@ -5,16 +5,16 @@ namespace Infrastructure.InMemoryDB
 {
     public static class ContextInstance
     {
-        private static IMDBContext iMDBContext { get; set; }
+        private static IMDBContext _IMDBContext { get; set; }
 
         public static IMDBContext GetInstance()
         {
-            if (iMDBContext == null)
+            if (_IMDBContext == null)
             {
-                iMDBContext = PrepareInstance();
+                _IMDBContext = PrepareInstance();
             }
 
-            return iMDBContext;
+            return _IMDBContext;
         }
 
         private static IMDBContext PrepareInstance()
@@ -23,7 +23,7 @@ namespace Infrastructure.InMemoryDB
 
             Fill();
 
-            return iMDBContext;
+            return _IMDBContext;
         }
 
         private static void CreateContext()
@@ -33,17 +33,17 @@ namespace Infrastructure.InMemoryDB
 
 
             var dbContextOptions = builder.Options;
-            iMDBContext = new IMDBContext(dbContextOptions);
+            _IMDBContext = new IMDBContext(dbContextOptions);
 
-            iMDBContext.Database.EnsureDeleted();
-            iMDBContext.Database.EnsureCreated();
+            _IMDBContext.Database.EnsureDeleted();
+            _IMDBContext.Database.EnsureCreated();
         }
 
         private static void Fill()
         {
-            iMDBContext.Add<Account>(new Account() { Id = 1, Owner = "Mr Dupont" });
-            iMDBContext.Add<Transaction>(new Transaction() { Id = 1, IdAccount = 1, Amount = 2000, TransactionDate = System.DateTime.Now });
-            iMDBContext.SaveChanges();
+            _IMDBContext.Add<Account>(new Account() { Id = 1, Owner = "Mr Dupont" });
+            _IMDBContext.Add<Transaction>(new Transaction() { Id = 1, IdAccount = 1, Amount = 2000, TransactionDate = System.DateTime.Now });
+            _IMDBContext.SaveChanges();
         }
     }
 }

@@ -29,10 +29,6 @@ namespace Domain
             {
                 result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Invalid, Message = BankMessages.UnknownAccount };
             }
-            catch (BankException.InvalidAmountException)
-            {
-                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Unauthorized, Message = BankMessages.AmountForbidNegativeAndZero };
-            }
             catch (BankException.TransactionErrorException)
             {
                 result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Invalid, Message = BankMessages.TransactionInfrastructureError };
@@ -59,10 +55,6 @@ namespace Domain
             catch (BankException.InvalidAccountException)
             {
                 result = new TransactionResult() { Result = TransactionResult.TransactionStatus.UnknownAccount, Message = BankMessages.UnknownAccount };
-            }
-            catch (BankException.InvalidAmountException)
-            {
-                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Unauthorized, Message = BankMessages.AmountForbidNegativeAndZero };
             }
             catch (BankException.InsufficientFundsException)
             {
