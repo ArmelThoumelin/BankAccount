@@ -1,7 +1,7 @@
 ﻿namespace Domain.Models
 {
-    public class DepositDemand : TransactionDemand
+    public class DepositDemand : TransactionDemand<DepositAmount>
     {
-        public decimal DepositAmount { get => this.Amount; set => this.Amount = value; }
+        public override DepositAmount Amount { get; set; }
     }
 }
