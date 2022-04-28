@@ -20,8 +20,8 @@ namespace Application.Test
 
             // Act
             decimal balance = await bank.GetBalance(1);
-            List<Transaction> Transactions = await bank.GetTransactions(demand);
-            decimal TransactionsSum = Transactions.Sum(t => t.Amount.Value);
+            var Transactions = await bank.GetTransactions(demand);
+            decimal TransactionsSum = Transactions.Transactions.Sum(t => t.Amount.Value);
 
             // Assert
             Assert.True(balance == TransactionsSum);
@@ -44,14 +44,14 @@ namespace Application.Test
             {
                 await SendDeposit(1, amounts[i], dates[i]);
             }
-            List<Transaction> Transactions = await bank.GetTransactions(demand);
-            decimal TransactionsSum = Transactions.Sum(t => t.Amount.Value);
+            var Transactions = await bank.GetTransactions(demand);
+            decimal TransactionsSum = Transactions.Transactions.Sum(t => t.Amount.Value);
 
             // Assert
-            Assert.True(Transactions.Count == 2);
+            Assert.True(Transactions.Transactions.Count == 2);
             Assert.True(TransactionsSum == expectedSum);
-            Assert.True(Transactions.Min(t => t.TransactionDate) >= dates[firstTransactionsIndex]);
-            Assert.True(Transactions.Max(t => t.TransactionDate) <= dates[lastTransactionsIndex]);
+            Assert.True(Transactions.Transactions.Min(t => t.TransactionDate) >= dates[firstTransactionsIndex]);
+            Assert.True(Transactions.Transactions.Max(t => t.TransactionDate) <= dates[lastTransactionsIndex]);
         }
 
         private async Task SendDeposit(long IdAccount, decimal Amount, DateTime TransactionDate)
@@ -67,10 +67,24 @@ namespace Application.Test
             // Arrange
             var demand = new HistoryDemand() { IdAccount = 1, StartDate = DateTime.MaxValue, EndDate = DateTime.MinValue };
 
-            // Act / Assert
-            await Assert.ThrowsAsync<Domain.BankException.InvalidDateRangeException>(
-                 async () => await bank.GetTransactions(demand)
-             );
+            // Act 
+            var result = await bank.GetTransactions(demand);
+
+            // Assert
+            Assert.True(result.Result == HistoryResult.HistoryStatus.InvalidDateRange);
+        }
+
+        [Fact]
+        public async Task HistoryKOWrongAccount()
+        {
+            // Arrange
+            var demand = new HistoryDemand() { IdAccount = long.MaxValue, StartDate = DateTime.Now, EndDate = DateTime.Now };
+
+            // Act 
+            var result = await bank.GetTransactions(demand);
+
+            // Assert
+            Assert.True(result.Result == HistoryResult.HistoryStatus.UnknownAccount);
         }
     }
 }

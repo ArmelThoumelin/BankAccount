@@ -1,6 +1,5 @@
 ﻿using Domain.Models;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Domain
@@ -89,10 +88,32 @@ namespace Domain
             return await _bankRepository.GetBalance(idAccount);
         }
 
-        public async Task<List<Transaction>> GetTransactions(HistoryDemand historyDemand)
+        public async Task<HistoryResult> GetTransactions(HistoryDemand historyDemand)
         {
-            CheckDates(historyDemand);
-            return await _bankRepository.GetTransactions(historyDemand);
+            var result = new HistoryResult();
+            try
+            {
+                CheckDates(historyDemand);
+                result.Transactions = await _bankRepository.GetTransactions(historyDemand);
+                result.Result = HistoryResult.HistoryStatus.Ok;
+            }
+            catch (BankException.InvalidAccountException)
+            {
+                result = new HistoryResult() { Result = HistoryResult.HistoryStatus.UnknownAccount, Message = BankMessages.UnknownAccount };
+            }
+            catch (BankException.InvalidDateRangeException)
+            {
+                result = new HistoryResult() { Result = HistoryResult.HistoryStatus.InvalidDateRange, Message = BankMessages.HistoryDateRangeError };
+            }
+            catch (BankException.TransactionErrorException)
+            {
+                result = new HistoryResult() { Result = HistoryResult.HistoryStatus.Invalid, Message = BankMessages.HistoryInfrastructureError };
+            }
+            catch (Exception)
+            {
+                result = new HistoryResult() { Result = HistoryResult.HistoryStatus.Invalid, Message = BankMessages.TransactionException };
+            }
+            return result;
         }
 
         private void CheckDates(HistoryDemand historyDemand)
