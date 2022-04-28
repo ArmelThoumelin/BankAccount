@@ -27,7 +27,7 @@ namespace Domain
             }
             catch (BankException.InvalidAccountException)
             {
-                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Invalid, Message = BankMessages.UnknownAccount };
+                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.UnknownAccount, Message = BankMessages.UnknownAccount };
             }
             catch (BankException.TransactionErrorException)
             {
@@ -41,7 +41,6 @@ namespace Domain
             return result;
         }
         #endregion
-
 
         #region Withdrawal
         public async Task<TransactionResult> AddWithdrawal(WithdrawalDemand withdrawalDemand)
@@ -104,10 +103,6 @@ namespace Domain
             catch (BankException.InvalidDateRangeException)
             {
                 result = new HistoryResult() { Result = HistoryResult.HistoryStatus.InvalidDateRange, Message = BankMessages.HistoryDateRangeError };
-            }
-            catch (BankException.TransactionErrorException)
-            {
-                result = new HistoryResult() { Result = HistoryResult.HistoryStatus.Invalid, Message = BankMessages.HistoryInfrastructureError };
             }
             catch (Exception)
             {

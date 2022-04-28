@@ -24,7 +24,6 @@ namespace Domain.Models
             this.Value = Amount;
         }
 
-
         public static bool operator < (decimal left, WithdrawalAmount right) => left < Math.Abs(right.Value);
         public static bool operator > (decimal left, WithdrawalAmount right) => left > Math.Abs(right.Value);
     }
