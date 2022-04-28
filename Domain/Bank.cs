@@ -86,14 +86,22 @@ namespace Domain
         #region History
         public async Task<decimal> GetBalance(long idAccount)
         {
-            throw new NotImplementedException();
+            return await _bankRepository.GetBalance(idAccount);
         }
 
         public async Task<List<Transaction>> GetTransactions(HistoryDemand historyDemand)
         {
-            throw new NotImplementedException();
+            CheckDates(historyDemand);
+            return await _bankRepository.GetTransactions(historyDemand);
         }
 
+        private void CheckDates(HistoryDemand historyDemand)
+        {
+            if (historyDemand.StartDate > historyDemand.EndDate)
+            {
+                throw new BankException.InvalidDateRangeException();
+            }
+        }
         #endregion
     }
 }
