@@ -1,6 +1,7 @@
 ﻿using Domain;
 using Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -35,7 +36,16 @@ namespace Infrastructure.InMemoryDB
             return result;
         }
 
+        public async Task<List<Transaction>> GetTransactions(HistoryDemand historyDemand)
+        {
+            await CheckAccount(historyDemand.IdAccount);
+            var result = await context.Set<DBModels.Transaction>()
+                .Where(t => t.TransactionDate >= historyDemand.StartDate && t.TransactionDate <= historyDemand.EndDate)
+                .Select(t => new Transaction() { IdTransaction = t.Id, Amount = new HistoryAmount(t.Amount), TransactionDate = t.TransactionDate })
+                .ToListAsync();            
 
+            return result;
+        }
 
         private async Task CheckAccount(long IdAccount)
         {

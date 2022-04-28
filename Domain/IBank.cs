@@ -7,6 +7,8 @@ namespace Domain
     {
         Task<TransactionResult> AddDeposit(DepositDemand depositDemand);
         Task<TransactionResult> AddWithdrawal(WithdrawalDemand withdrawalDemand);
+        Task<decimal> GetBalance(long idAccount);
+        Task<HistoryResult> GetTransactions(HistoryDemand historyDemand);
     }
 
 }

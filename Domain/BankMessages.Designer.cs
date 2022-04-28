@@ -70,6 +70,24 @@ namespace Domain {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Start date cannot be less than end date.
+        /// </summary>
+        public static string HistoryDateRangeError {
+            get {
+                return ResourceManager.GetString("HistoryDateRangeError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à We encoutered an error during history loading, we are sorry for the inconvenience.
+        /// </summary>
+        public static string HistoryInfrastructureError {
+            get {
+                return ResourceManager.GetString("HistoryInfrastructureError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Sorry, you do not have sufficient funds to complete this transaction..
         /// </summary>
         public static string InsufficientFunds {
