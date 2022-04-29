@@ -119,5 +119,24 @@ namespace Domain
             }
         }
         #endregion
+
+        #region Account
+        public async Task<AccountExistsResult> AccountExists(long IdAccount)
+        {
+            var result = new AccountExistsResult();
+            try
+            {
+                await _bankRepository.CheckAccount(IdAccount);
+                result.Result = AccountExistsResult.AccountStatus.Ok;
+            }
+            catch (BankException.InvalidAccountException)
+            {
+                result.Result = AccountExistsResult.AccountStatus.Ok;
+                result.Message = BankMessages.UnknownAccount;
+            }
+            return result;
+        }
+
+        #endregion
     }
 }
