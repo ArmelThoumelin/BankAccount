@@ -47,7 +47,7 @@ namespace Infrastructure.InMemoryDB
             return result;
         }
 
-        private async Task CheckAccount(long IdAccount)
+        public async Task CheckAccount(long IdAccount)
         {
             if (! await AccountExists(IdAccount))
             {
