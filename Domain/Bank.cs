@@ -131,7 +131,7 @@ namespace Domain
             }
             catch (BankException.InvalidAccountException)
             {
-                result.Result = AccountExistsResult.AccountStatus.Ok;
+                result.Result = AccountExistsResult.AccountStatus.Invalid;
                 result.Message = BankMessages.UnknownAccount;
             }
             return result;
