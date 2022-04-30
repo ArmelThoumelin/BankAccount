@@ -40,7 +40,7 @@ namespace Infrastructure.InMemoryDB
         {
             await CheckAccount(historyDemand.IdAccount);
             var result = await context.Set<DBModels.Transaction>()
-                .Where(t => t.TransactionDate >= historyDemand.StartDate && t.TransactionDate <= historyDemand.EndDate)
+                .Where(t => t.IdAccount == historyDemand.IdAccount && t.TransactionDate >= historyDemand.StartDate && t.TransactionDate <= historyDemand.EndDate)
                 .Select(t => new Transaction() { IdTransaction = t.Id, Amount = new HistoryAmount(t.Amount), TransactionDate = t.TransactionDate })
                 .OrderByDescending(t => t.TransactionDate)
                 .ToListAsync();            
