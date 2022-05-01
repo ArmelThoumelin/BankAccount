@@ -2,8 +2,6 @@
 {
     public class HistoryAmount : IAmount
     {
-        private decimal _Amount;
-
         public decimal Value { get; set; }
 
         public HistoryAmount(decimal Amount)

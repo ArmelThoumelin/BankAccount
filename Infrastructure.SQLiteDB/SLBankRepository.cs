@@ -1,15 +1,19 @@
 ﻿using Domain;
 using Domain.Models;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Infrastructure.InMemoryDB
+namespace Infrastructure.SQLiteDB
 {
-    public class IMBankRepository : IBankRepository
+    public class SLBankRepository : IBankRepository
     {
-        protected IMDBContext context { get => ContextInstance.GetInstance(); }
+        protected SLDBContext context { get; set; }
+        public SLBankRepository()
+        {
+            context = new SLDBContext();
+        }
 
         public async Task<TransactionResult> AddTransaction<T>(TransactionDemand<T> transactionDemand) where T : IAmount
         {
@@ -31,7 +35,7 @@ namespace Infrastructure.InMemoryDB
         public async Task<decimal> GetBalance(long IdAccount)
         {
             await CheckAccount(IdAccount);
-            decimal result = await context.Set<DBModels.Transaction>().Where(t => t.IdAccount == IdAccount).SumAsync(t => t.Amount);            
+            decimal result = await context.Set<DBModels.Transaction>().Where(t => t.IdAccount == IdAccount).SumAsync(t => t.Amount);
 
             return result;
         }
@@ -41,16 +45,14 @@ namespace Infrastructure.InMemoryDB
             await CheckAccount(historyDemand.IdAccount);
             var result = await context.Set<DBModels.Transaction>()
                 .Where(t => t.IdAccount == historyDemand.IdAccount && t.TransactionDate >= historyDemand.StartDate && t.TransactionDate <= historyDemand.EndDate)
-                .Select(t => new Transaction() { IdTransaction = t.Id, Amount = new HistoryAmount(t.Amount), TransactionDate = t.TransactionDate })
-                .OrderByDescending(t => t.TransactionDate)
-                .ToListAsync();            
+                .OrderByDescending(t => t.TransactionDate).ToListAsync();
 
-            return result;
+            return result.Select(t => new Transaction() { IdTransaction = t.Id, Amount = new HistoryAmount(t.Amount), TransactionDate = t.TransactionDate }).ToList();
         }
 
         public async Task CheckAccount(long IdAccount)
         {
-            if (! await AccountExists(IdAccount))
+            if (!await AccountExists(IdAccount))
             {
                 throw new Domain.BankException.InvalidAccountException();
             }

@@ -1,6 +1,7 @@
 ﻿using Domain;
 using Domain.Models;
-using Infrastructure.InMemoryDB;
+//using Infrastructure.InMemoryDB;
+using Infrastructure.SQLiteDB;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -33,7 +34,8 @@ namespace Application.ConsoleApp
 
         public async Task Start()
         {
-            var repository = new IMBankRepository();
+            //var repository = new IMBankRepository();
+            var repository = new SLBankRepository();
             _Bank = new Bank(repository);
             _step = Step.Login;
 
