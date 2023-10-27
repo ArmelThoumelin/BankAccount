@@ -1,7 +1,5 @@
 ﻿using Domain;
 using Domain.Models;
-//using Infrastructure.InMemoryDB;
-using Infrastructure.SQLiteDB;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -18,7 +16,7 @@ namespace Application.ConsoleApp
         private const string ShortenedDeposit = "D";
         private const string ShortenedConsult = "C";
         private const string DateFormatString = "dd/MM/yyyy";
-        private Bank _Bank { get; set; }
+        private IBank _Bank { get; set; }
         private long _IdAccount { get; set; }
         private Step _step { get; set; }
 
@@ -32,11 +30,13 @@ namespace Application.ConsoleApp
             History
         }
 
+        public BankOperation(IBank bank)
+        {
+            _Bank = bank;
+        }
+
         public async Task Start()
         {
-            //var repository = new IMBankRepository();
-            var repository = new SLBankRepository();
-            _Bank = new Bank(repository);
             _step = Step.Login;
 
             Console.WriteLine(ConsoleResource.Welcome);

@@ -9,6 +9,7 @@ namespace Domain
         Task<TransactionResult> AddWithdrawal(WithdrawalDemand withdrawalDemand);
         Task<decimal> GetBalance(long idAccount);
         Task<HistoryResult> GetTransactions(HistoryDemand historyDemand);
+        Task<AccountExistsResult> AccountExists(long IdAccount);
     }
 
 }
