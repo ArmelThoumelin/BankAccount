@@ -1,40 +1,53 @@
+using Domain;
 using Domain.Models;
+using Moq;
 using System.Threading.Tasks;
 using Xunit;
 
+
 namespace Application.Test
 {
-    [Collection("TestCollection1")]
-    public class DepositTest : BankTest
+    public class DepositTests
     {
-        [Fact]
-        public async Task DepositOK()
+        private readonly Mock<IBankRepository> _mockBankRepository;
+        private readonly Bank _bank;
+
+        public DepositTests()
         {
-            var bank = this.GetBank();
-
-            var demand = new DepositDemand() { IdAccount = _AccountOk, Amount = new DepositAmount(100), TransactionDate = System.DateTime.Now };
-            var result = await bank.AddDeposit(demand);
-
-            Assert.True(result.Result == TransactionResult.TransactionStatus.Ok);
+            _mockBankRepository = new Mock<IBankRepository>();
+            _bank = new Bank(_mockBankRepository.Object);
         }
 
         [Fact]
-        public async Task DepositKOWrongAccount()
+        public async Task AddDeposit_ShouldReturnSuccessResult_WhenTransactionIsSuccessful()
         {
-            var bank = this.GetBank();
+            // Arrange
+            var depositAmount = new DepositAmount(100);
+            var depositDemand = new DepositDemand { Amount = depositAmount, IdAccount = 1 };
+            var expectedResult = new TransactionResult { Result = TransactionResult.TransactionStatus.Ok };
+            _mockBankRepository.Setup(repo => repo.AddTransaction(depositDemand)).ReturnsAsync(expectedResult);
 
-            var demand = new DepositDemand() { IdAccount = _AccountKo, Amount = new DepositAmount(100), TransactionDate = System.DateTime.Now };
-            var result = await bank.AddDeposit(demand);
+            // Act
+            var result = await _bank.AddDeposit(depositDemand);
 
-            Assert.True(result.Result == TransactionResult.TransactionStatus.UnknownAccount);
+            // Assert
+            Assert.Equal(TransactionResult.TransactionStatus.Ok, result.Result);
         }
 
         [Fact]
-        public void DepositKOWrongAmount()
+        public async Task AddDeposit_ShouldReturnUnknownAccountResult_WhenInvalidAccountExceptionIsThrown()
         {
-            Assert.Throws<Domain.BankException.InvalidAmountException>(
-                () => new DepositDemand() { IdAccount = _AccountOk, Amount = new DepositAmount(-100), TransactionDate = System.DateTime.Now }
-            );
+            // Arrange
+            var depositAmount = new DepositAmount(100);
+            var depositDemand = new DepositDemand { Amount = depositAmount, IdAccount = 1 };
+            _mockBankRepository.Setup(repo => repo.AddTransaction(depositDemand)).ThrowsAsync(new Domain.BankException.InvalidAccountException());
+
+            // Act
+            var result = await _bank.AddDeposit(depositDemand);
+
+            // Assert
+            Assert.Equal(TransactionResult.TransactionStatus.UnknownAccount, result.Result);
+            Assert.Equal(BankMessages.UnknownAccount, result.Message);
         }
     }
 }

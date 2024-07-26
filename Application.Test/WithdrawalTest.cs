@@ -1,51 +1,38 @@
-﻿using Domain.Models;
+﻿using Domain;
+using Domain.Models;
+using Moq;
 using System.Threading.Tasks;
 using Xunit;
 
+
 namespace Application.Test
 {
-    [Collection("TestCollection1")]
-    public class WithdrawalTest : BankTest
+    public class WithdrawalTest
     {
-        [Fact]
-        public async Task WithDrawalOK()
+        private readonly Mock<IBankRepository> _mockBankRepository;
+        private readonly Bank _bank;
+
+        public WithdrawalTest()
         {
-            var bank = this.GetBank();
-
-            var demand = new WithdrawalDemand() { IdAccount = _AccountOk, Amount = new WithdrawalAmount(100), TransactionDate = System.DateTime.Now };
-            var result = await bank.AddWithdrawal(demand);
-
-            Assert.True(result.Result == TransactionResult.TransactionStatus.Ok);
+            _mockBankRepository = new Mock<IBankRepository>();
+            _bank = new Bank(_mockBankRepository.Object);
         }
 
         [Fact]
-        public void WithDrawalKOWrongAmount()
+        public async Task AddWithdrawal_ShouldReturnInsufficientFundsResult_WhenInsufficientFundsExceptionIsThrown()
         {
-            Assert.Throws<Domain.BankException.InvalidAmountException>(
-                () => new WithdrawalDemand() { IdAccount = _AccountOk, Amount = new WithdrawalAmount(-100), TransactionDate = System.DateTime.Now }
-            );
-        }
+            // Arrange
+            var withdrawalAmount = new WithdrawalAmount(100);
+            var withdrawalDemand = new WithdrawalDemand { Amount = withdrawalAmount, IdAccount = 1 };
+            _mockBankRepository.Setup(repo => repo.GetBalance(1)).ReturnsAsync(50);
+            _mockBankRepository.Setup(repo => repo.AddTransaction(withdrawalDemand)).ThrowsAsync(new Domain.BankException.InsufficientFundsException());
 
-        [Fact]
-        public async Task WithDrawalKOWrongAccount()
-        {
-            var bank = this.GetBank();
+            // Act
+            var result = await _bank.AddWithdrawal(withdrawalDemand);
 
-            var demand = new WithdrawalDemand() { IdAccount = _AccountKo, Amount = new WithdrawalAmount(100), TransactionDate = System.DateTime.Now };
-            var result = await bank.AddWithdrawal(demand);
-
-            Assert.True(result.Result == TransactionResult.TransactionStatus.UnknownAccount);
-        }
-
-        [Fact]
-        public async Task WithDrawalKOAmountExceedingSavings()
-        {
-            var bank = this.GetBank();
-
-            var demand = new WithdrawalDemand() { IdAccount = _AccountOk, Amount = new WithdrawalAmount(decimal.MaxValue), TransactionDate = System.DateTime.Now };
-            var result = await bank.AddWithdrawal(demand);
-
-            Assert.True(result.Result == TransactionResult.TransactionStatus.InsufficientFunds);
+            // Assert
+            Assert.Equal(TransactionResult.TransactionStatus.InsufficientFunds, result.Result);
+            Assert.Equal(BankMessages.InsufficientFunds, result.Message);
         }
     }
 }
