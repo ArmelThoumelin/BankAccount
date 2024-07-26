@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.32413.511
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "Domain\Domain.csproj", "{2D043D14-85E0-489C-B6EF-462760206A09}"
 EndProject
@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.Test", "Applica
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.ConsoleApp", "Application.Console\Application.ConsoleApp.csproj", "{56444C59-0012-4F47-AE9F-5BA9FB5959A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.SQLiteDB", "Infrastructure.SQLiteDB\Infrastructure.SQLiteDB.csproj", "{0F8731E4-2B02-4289-A5F7-B7D99E32E7E7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.SQLiteDB", "Infrastructure.SQLiteDB\Infrastructure.SQLiteDB.csproj", "{0F8731E4-2B02-4289-A5F7-B7D99E32E7E7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Application.API", "Application.API\Application.API.csproj", "{97C24E12-5B63-456C-B254-2401ABD87BE8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{0F8731E4-2B02-4289-A5F7-B7D99E32E7E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0F8731E4-2B02-4289-A5F7-B7D99E32E7E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0F8731E4-2B02-4289-A5F7-B7D99E32E7E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97C24E12-5B63-456C-B254-2401ABD87BE8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97C24E12-5B63-456C-B254-2401ABD87BE8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97C24E12-5B63-456C-B254-2401ABD87BE8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97C24E12-5B63-456C-B254-2401ABD87BE8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
