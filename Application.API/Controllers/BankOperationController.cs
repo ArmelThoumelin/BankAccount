@@ -1,11 +1,14 @@
+using Application.API.Dto;
 using Domain;
 using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Mime;
 
 namespace Application.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Produces(MediaTypeNames.Application.Json)]
     public class BankOperationController : ControllerBase
     {
         private readonly ILogger<BankOperationController> _logger;
@@ -17,7 +20,7 @@ namespace Application.API.Controllers
             _Bank = bank;
         }
 
-        [HttpGet("AccountExists/{idAccount}")]
+        [HttpGet("AccountExists")]
         public async Task<IActionResult> AccountExists(long idAccount)
         {
             try
@@ -36,7 +39,7 @@ namespace Application.API.Controllers
             }
         }
 
-        [HttpGet("GetBalance/{idAccount}")]
+        [HttpGet("GetBalance")]
         public async Task<IActionResult> GetBalance(long idAccount)
         {
             try
@@ -54,20 +57,25 @@ namespace Application.API.Controllers
         }
 
         [HttpGet("GetTransactions")]
-        public async Task<IActionResult> GetTransactions(long idAccount, DateTime startDate, DateTime? endDate)
+        public async Task<IActionResult> GetTransactions([FromQuery] GetTransactionsRequest request)
         {
             try
             {
                 var historyDemand = new HistoryDemand()
                 {
-                    IdAccount = idAccount,
-                    StartDate = startDate,
-                    EndDate = endDate ?? DateTime.Now
+                    IdAccount = request.IdAccount,
+                    StartDate = request.StartDate,
+                    EndDate = request.EndDate ?? DateTime.Now
                 };
 
                 var result = await _Bank.GetTransactions(historyDemand);
-
-                return Ok(result);
+                return result.Result switch
+                {
+                    HistoryResult.HistoryStatus.Ok => Ok(result),
+                    HistoryResult.HistoryStatus.InvalidDateRange => BadRequest(new { Message = result.Message }),
+                    HistoryResult.HistoryStatus.UnknownAccount => BadRequest(new { Message = result.Message }),
+                    _ => Problem(detail: result.Message)
+                };
             }
             catch (Exception ex)
             {
@@ -77,22 +85,26 @@ namespace Application.API.Controllers
             }
         }
 
-        [HttpPost("AddDeposit/{idAccount}/{amount}")]
-        public async Task<IActionResult> AddDeposit(long idAccount, decimal amount)
+        [HttpPost("AddDeposit")]
+        public async Task<IActionResult> AddDeposit([FromBody] AddDepositRequest request)
         {
             try
             {
-                var depositAmount = new DepositAmount(amount);
+                var depositAmount = new DepositAmount(request.Amount);
                 var depositDemand = new DepositDemand()
                 {
-                    IdAccount = idAccount,
+                    IdAccount = request.IdAccount,
                     Amount = depositAmount,
                     TransactionDate = DateTime.Now
                 };
 
                 var result = await _Bank.AddDeposit(depositDemand);
-
-                return Ok(new { Result = result.Result.ToString(), Message = result.Message });
+                return result.Result switch
+                {
+                    TransactionResult.TransactionStatus.Ok => Ok(new { Result = result.Result.ToString(), Message = result.Message }),
+                    TransactionResult.TransactionStatus.UnknownAccount => BadRequest(new { Message = result.Message }),
+                    _ => Problem(detail: result.Message)
+                };
             }
             catch (Exception ex)
             {
@@ -102,22 +114,27 @@ namespace Application.API.Controllers
             }
         }
 
-        [HttpPost("AddWithdrawal/{idAccount}/{amount}")]
-        public async Task<IActionResult> AddWithdrawal(long idAccount, decimal amount)
+        [HttpPost("AddWithdrawal")]
+        public async Task<IActionResult> AddWithdrawal([FromBody] AddWithdrawalRequest request)
         {
             try
             {
-                var withdrawalAmount = new WithdrawalAmount(amount);
+                var withdrawalAmount = new WithdrawalAmount(request.Amount);
                 var withdrawalDemand = new WithdrawalDemand()
                 {
-                    IdAccount = idAccount,
+                    IdAccount = request.IdAccount,
                     Amount = withdrawalAmount,
                     TransactionDate = DateTime.Now
                 };
 
                 var result = await _Bank.AddWithdrawal(withdrawalDemand);
-
-                return Ok(new { Result = result.Result.ToString(), Message = result.Message });
+                return result.Result switch
+                {
+                    TransactionResult.TransactionStatus.Ok => Ok(new { Result = result.Result.ToString(), Message = result.Message }),
+                    TransactionResult.TransactionStatus.UnknownAccount => BadRequest(new { Message = result.Message }),
+                    TransactionResult.TransactionStatus.InsufficientFunds => BadRequest(new { Message = result.Message }),
+                    _ => Problem(detail: result.Message)
+                };
             }
             catch (Exception ex)
             {
