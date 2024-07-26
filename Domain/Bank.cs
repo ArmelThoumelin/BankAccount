@@ -14,61 +14,24 @@ namespace Domain
         /// <param name="bankRepository">Bank repository</param>
         public Bank(IBankRepository bankRepository)
         {
-            this._bankRepository = bankRepository;
+            _bankRepository = bankRepository ?? throw new ArgumentNullException(nameof(bankRepository));
         }
 
         #region Deposit
         public async Task<TransactionResult> AddDeposit(DepositDemand depositDemand)
         {
-            TransactionResult result;
-            try
-            {
-                result = await _bankRepository.AddTransaction(depositDemand);
-            }
-            catch (BankException.InvalidAccountException)
-            {
-                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.UnknownAccount, Message = BankMessages.UnknownAccount };
-            }
-            catch (BankException.TransactionErrorException)
-            {
-                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Invalid, Message = BankMessages.TransactionInfrastructureError };
-            }
-            catch (Exception)
-            {
-                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Invalid, Message = BankMessages.TransactionException };
-            }
-
-            return result;
+            return await ExecuteTransactionAsync(() => _bankRepository.AddTransaction(depositDemand));
         }
         #endregion
 
         #region Withdrawal
         public async Task<TransactionResult> AddWithdrawal(WithdrawalDemand withdrawalDemand)
         {
-            TransactionResult result;
-            try
+            return await ExecuteTransactionAsync(async () =>
             {
                 await CheckForSufficientAmount(withdrawalDemand.IdAccount, withdrawalDemand.Amount);
-                result = await _bankRepository.AddTransaction(withdrawalDemand);
-            }
-            catch (BankException.InvalidAccountException)
-            {
-                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.UnknownAccount, Message = BankMessages.UnknownAccount };
-            }
-            catch (BankException.InsufficientFundsException)
-            {
-                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.InsufficientFunds, Message = BankMessages.InsufficientFunds };
-            }
-            catch (BankException.TransactionErrorException)
-            {
-                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Invalid, Message = BankMessages.TransactionInfrastructureError };
-            }
-            catch (Exception)
-            {
-                result = new TransactionResult() { Result = TransactionResult.TransactionStatus.Invalid, Message = BankMessages.TransactionException };
-            }
-
-            return result;
+                return await _bankRepository.AddTransaction(withdrawalDemand);
+            });
         }
 
         private async Task CheckForSufficientAmount(long idAccount, WithdrawalAmount withdrawalAmount)
@@ -92,26 +55,26 @@ namespace Domain
             var result = new HistoryResult();
             try
             {
-                CheckDates(historyDemand);
+                ValidateDateRange(historyDemand);
                 result.Transactions = await _bankRepository.GetTransactions(historyDemand);
                 result.Result = HistoryResult.HistoryStatus.Ok;
             }
             catch (BankException.InvalidAccountException)
             {
-                result = new HistoryResult() { Result = HistoryResult.HistoryStatus.UnknownAccount, Message = BankMessages.UnknownAccount };
+                result = CreateHistoryResult(HistoryResult.HistoryStatus.UnknownAccount, BankMessages.UnknownAccount);
             }
             catch (BankException.InvalidDateRangeException)
             {
-                result = new HistoryResult() { Result = HistoryResult.HistoryStatus.InvalidDateRange, Message = BankMessages.HistoryDateRangeError };
+                result = CreateHistoryResult(HistoryResult.HistoryStatus.InvalidDateRange, BankMessages.HistoryDateRangeError);
             }
             catch (Exception)
             {
-                result = new HistoryResult() { Result = HistoryResult.HistoryStatus.Invalid, Message = BankMessages.TransactionException };
+                result = CreateHistoryResult(HistoryResult.HistoryStatus.Invalid, BankMessages.TransactionException);
             }
             return result;
         }
 
-        private void CheckDates(HistoryDemand historyDemand)
+        private void ValidateDateRange(HistoryDemand historyDemand)
         {
             if (historyDemand.StartDate > historyDemand.EndDate)
             {
@@ -121,12 +84,12 @@ namespace Domain
         #endregion
 
         #region Account
-        public async Task<AccountExistsResult> AccountExists(long IdAccount)
+        public async Task<AccountExistsResult> AccountExists(long idAccount)
         {
             var result = new AccountExistsResult();
             try
             {
-                await _bankRepository.CheckAccount(IdAccount);
+                await _bankRepository.CheckAccount(idAccount);
                 result.Result = AccountExistsResult.AccountStatus.Ok;
             }
             catch (BankException.InvalidAccountException)
@@ -136,7 +99,42 @@ namespace Domain
             }
             return result;
         }
+        #endregion
 
+        #region Private Methods
+        private async Task<TransactionResult> ExecuteTransactionAsync(Func<Task<TransactionResult>> transactionFunc)
+        {
+            try
+            {
+                return await transactionFunc();
+            }
+            catch (BankException.InvalidAccountException)
+            {
+                return CreateTransactionResult(TransactionResult.TransactionStatus.UnknownAccount, BankMessages.UnknownAccount);
+            }
+            catch (BankException.InsufficientFundsException)
+            {
+                return CreateTransactionResult(TransactionResult.TransactionStatus.InsufficientFunds, BankMessages.InsufficientFunds);
+            }
+            catch (BankException.TransactionErrorException)
+            {
+                return CreateTransactionResult(TransactionResult.TransactionStatus.Invalid, BankMessages.TransactionInfrastructureError);
+            }
+            catch (Exception)
+            {
+                return CreateTransactionResult(TransactionResult.TransactionStatus.Invalid, BankMessages.TransactionException);
+            }
+        }
+
+        private TransactionResult CreateTransactionResult(TransactionResult.TransactionStatus status, string message)
+        {
+            return new TransactionResult { Result = status, Message = message };
+        }
+
+        private HistoryResult CreateHistoryResult(HistoryResult.HistoryStatus status, string message)
+        {
+            return new HistoryResult { Result = status, Message = message };
+        }
         #endregion
     }
 }
